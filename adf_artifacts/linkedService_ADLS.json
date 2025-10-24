@@ -1,0 +1,15 @@
+{
+  "name": "LS_ADLS_NYCTaxi",
+  "properties": {
+    "type": "AzureBlobFS",
+    "typeProperties": {
+      "url": "https://parthsingh1253@gmail.com.dfs.core.windows.net/"
+    },
+    "connectVia": {
+      "referenceName": "AutoResolveIntegrationRuntime",
+      "type": "IntegrationRuntimeReference"
+    },
+    "annotations": [],
+    "description": "Linked service to connect ADF to ADLS Gen2 for NYC Taxi project"
+  }
+}
