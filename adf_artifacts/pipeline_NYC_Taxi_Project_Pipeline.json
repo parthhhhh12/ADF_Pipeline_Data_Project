@@ -1,0 +1,80 @@
+{
+  "name": "pipeline_NYC_Taxi_Project_Pipeline",
+  "properties": {
+    "description": "ADF pipeline for NYC Taxi Data - ingestion, transformation, and analytics using Databricks",
+    "parameters": {
+      "SourceURL": {
+        "type": "String",
+        "defaultValue": "https://data.cityofnewyork.us/resource/taxi_trips.csv"
+      },
+      "FilterThreshold": {
+        "type": "Int",
+        "defaultValue": 2
+      }
+    },
+    "activities": [
+      {
+        "name": "Copy_Raw_Data",
+        "type": "Copy",
+        "dependsOn": [],
+        "typeProperties": {
+          "source": {
+            "type": "DelimitedTextSource"
+          },
+          "sink": {
+            "type": "AzureBlobFSink"
+          }
+        },
+        "inputs": [
+          {
+            "referenceName": "DS_NYC_Taxi_CSV",
+            "type": "DatasetReference"
+          }
+        ],
+        "outputs": [
+          {
+            "referenceName": "DS_Raw_ADLS",
+            "type": "DatasetReference"
+          }
+        ]
+      },
+      {
+        "name": "Transform_Data",
+        "type": "DataFlow",
+        "dependsOn": [
+          {
+            "activity": "Copy_Raw_Data",
+            "dependencyConditions": ["Succeeded"]
+          }
+        ],
+        "typeProperties": {
+          "dataflow": {
+            "referenceName": "dataflow_NYC_Taxi_Transformations",
+            "type": "DataFlowReference"
+          }
+        }
+      },
+      {
+        "name": "Run_Databricks_Analysis",
+        "type": "DatabricksNotebook",
+        "dependsOn": [
+          {
+            "activity": "Transform_Data",
+            "dependencyConditions": ["Succeeded"]
+          }
+        ],
+        "typeProperties": {
+          "notebookPath": "/Shared/nyc_taxi_analysis",
+          "baseParameters": {
+            "input_path": "adl://processed/nyc_taxi_data/",
+            "output_path": "adl://analysis/"
+          }
+        },
+        "linkedServiceName": {
+          "referenceName": "LS_Databricks",
+          "type": "LinkedServiceReference"
+        }
+      }
+    ]
+  }
+}
