@@ -1,0 +1,50 @@
+{
+  "name": "dataflow_NYC_Taxi_Transformations",
+  "properties": {
+    "type": "MappingDataFlow",
+    "description": "Filter and aggregate NYC Taxi data for analytics readiness",
+    "typeProperties": {
+      "sources": [
+        {
+          "name": "source1",
+          "dataset": {
+            "referenceName": "DS_Raw_ADLS",
+            "type": "DatasetReference"
+          }
+        }
+      ],
+      "transformations": [
+        {
+          "name": "FilterLowFareTrips",
+          "type": "Filter",
+          "condition": "fare_amount > 2 and trip_distance > 0.5"
+        },
+        {
+          "name": "AggregateByVendorPayment",
+          "type": "Aggregate",
+          "groupBy": ["VendorID", "payment_type"],
+          "aggregates": [
+            {
+              "name": "avg_fare",
+              "expression": "avg(fare_amount)"
+            },
+            {
+              "name": "ride_count",
+              "expression": "count()"
+            }
+          ]
+        }
+      ],
+      "sinks": [
+        {
+          "name": "sink1",
+          "dataset": {
+            "referenceName": "DS_Processed_Parquet",
+            "type": "DatasetReference"
+          },
+          "format": "parquet"
+        }
+      ]
+    }
+  }
+}
